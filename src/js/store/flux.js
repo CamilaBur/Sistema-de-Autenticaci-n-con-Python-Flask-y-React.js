@@ -23,6 +23,7 @@ const getState = ({
             planetas: [],
             detallePlaneta: {},
             favoritos: [],
+            auth: false,
         },
         actions: {
             // Use getActions to call a function within a fuction
@@ -102,6 +103,59 @@ const getState = ({
                 /**
                 	fetch().then().then(data => setStore({ "foo": data.bar }))
                 */
+            },
+            logout: () => {
+                localStorage.removeItem('token');
+                setStore({
+                    auth: false
+                })
+            },
+            signup: (userEmail, userPassword, userName) => {
+                fetch('https://3000-camilabur-proyecto24-85wu9tx8h2z.ws-us84.gitpod.io/signup', {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json'
+                            // 'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: JSON.stringify({
+                            "email": userEmail,
+                            "password": userPassword,
+                            "username": userName
+                        }) // body data type must match "Content-Type" header
+                    })
+                    .catch((err) => console.log(err))
+            },
+            login: (userEmail, userPassword) => {
+                fetch('https://3000-camilabur-proyecto24-85wu9tx8h2z.ws-us84.gitpod.io/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                            // 'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: JSON.stringify({
+                            "email": userEmail,
+                            "password": userPassword
+                        }) // body data type must match "Content-Type" header
+                    })
+                    .then((response) => {
+                        console.log(response.status);
+                        if (response.status === 200) {
+                            setStore({
+                                auth: true
+                            })
+                        }
+                        return response.json()
+                    })
+                    .then((data) => {
+                        console.log(data)
+                        if (data.msg === "Bad email or password") {
+                            alert(data.msg)
+                        }
+                        localStorage.setItem("token", data.access_token)
+                    })
+                    .catch((err) => console.log(err))
             },
             changeColor: (index, color) => {
                 //get the store
